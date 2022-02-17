@@ -81,7 +81,6 @@ class LifeGame {
         const letOff = [];
         const letOn = [];
         this.analyzeCandidates(letOn, letOff);
-
         this.candidates = {};
         for (let i = 0; i < letOff.length; ++i) {
             this.updateElement(letOff[i], 0, -1);
@@ -98,6 +97,7 @@ class Canvas {
         this.cellSize = 2;
         this.backgroundColor = '#222';
         this.color = '#a600ff';
+        this.borderColor = '#555555';
         this.canvas = document.getElementById('canvas');
         this.context = this.canvas.getContext('2d');
         this.game = game;
@@ -113,7 +113,7 @@ class Canvas {
         this.context.fillRect(0, 0, canvasWidth, canvasHeight);
 
         if (this.cellSize > 3) {
-            this.context.fillStyle = '#555555';
+            this.context.fillStyle = this.borderColor;
             for (let i = 0; i < width; i++) {
                 this.context.fillRect(i * this.cellSize, 1, 1, canvasHeight);
             }
@@ -122,15 +122,12 @@ class Canvas {
             }
         }
 
-        this.context.fillRect(0, 0, canvasWidth, 1);
-        this.context.fillRect(0, canvasHeight - 1, canvasWidth, 1);
-        this.context.fillRect(0, 0, 1, canvasHeight);
-        this.context.fillRect(canvasWidth - 1, 0, 1, canvasHeight);
+        this.fillBorders();
     }
 
     update() {
-        const width = Math.floor((this.width) / this.cellSize);
-        const height = Math.floor((this.height) / this.cellSize);
+        const width = Math.floor(this.width / this.cellSize);
+        const height = Math.floor(this.height / this.cellSize);
 
         this.game.width = width;
         this.game.height = height;
@@ -146,28 +143,60 @@ class Canvas {
         const [width, off, on] = this.game.step();
 
         this.context.fillStyle = this.backgroundColor;
+        this.context.lineWidth = 1;
+        this.context.strokeStyle = this.borderColor;
         for (let i = 0; i < off.length; ++i) {
             const tmp = off[i];
             this.context.fillRect((tmp % width) * this.cellSize + 1, Math.floor(tmp / width) * this.cellSize + 1, this.cellSize, this.cellSize);
+
+            if (this.cellSize > 3) {
+                this.context.strokeRect((tmp % width) * this.cellSize + 1, Math.floor(tmp / width) * this.cellSize + 1, this.cellSize, this.cellSize);
+            }
         }
 
         this.context.fillStyle = this.color;
         for (let i = 0; i < on.length; ++i) {
             const tmp = on[i];
             this.context.fillRect((tmp % width) * this.cellSize + 1, Math.floor(tmp / width) * this.cellSize + 1, this.cellSize, this.cellSize);
+
+            if (this.cellSize > 3) {
+                this.context.strokeRect((tmp % width) * this.cellSize + 1, Math.floor(tmp / width) * this.cellSize + 1, this.cellSize, this.cellSize);
+            }
         }
 
-        return { updated: off.length + on.length };
+        this.fillBorders();
+
+        return {updated: off.length + on.length};
     }
 
     fill(func) {
         this.reset();
         this.context.fillStyle = this.color;
+        this.context.lineWidth = 1;
+        this.context.strokeStyle = this.borderColor;
         func(this.game.width, this.game.height).forEach((value) => {
             if (this.game.inverse(value.x, value.y) === 1) {
                 this.context.fillRect(value.x * this.cellSize + 1, value.y * this.cellSize + 1, this.cellSize, this.cellSize);
+
+                if (this.cellSize > 3) {
+                    this.context.strokeRect(value.x * this.cellSize + 1, value.y * this.cellSize + 1, this.cellSize, this.cellSize);
+                }
             }
         });
+    }
+
+    fillBorders() {
+        if (this.cellSize > 3) {
+            this.context.fillStyle = this.borderColor;
+
+            const canvasWidth = this.canvas.width;
+            const canvasHeight = this.canvas.height;
+
+            this.context.fillRect(0, 0, canvasWidth, 1);
+            this.context.fillRect(0, canvasHeight - 1, canvasWidth, 1);
+            this.context.fillRect(0, 0, 1, canvasHeight);
+            this.context.fillRect(canvasWidth - 1, 0, 1, canvasHeight);
+        }
     }
 
     setCell({x, y}) {
@@ -180,7 +209,14 @@ class Canvas {
         const value = Number(!status);
 
         this.context.fillStyle = value ? this.color : this.backgroundColor;
-        this.context.fillRect((index % width) * this.cellSize + 0.5, Math.floor(index / width) * this.cellSize + 0.5, this.cellSize, this.cellSize);
+        this.context.fillRect((index % width) * this.cellSize + 1, Math.floor(index / width) * this.cellSize + 1, this.cellSize, this.cellSize);
+
+        this.context.lineWidth = 1;
+        this.context.strokeStyle = this.borderColor;
+
+        if (this.cellSize > 3) {
+            this.context.strokeRect((index % width) * this.cellSize + 1, Math.floor(index / width) * this.cellSize + 1, this.cellSize, this.cellSize);
+        }
 
         this.game.updateElement(index, value, 1);
     }
