@@ -129,20 +129,15 @@ class Canvas {
     }
 
     update() {
-        let extra = 2;
-        if (this.cellSize > 2) {
-            extra = 1;
-            this.cellSize = this.cellSize - 1;
-        }
-        const width = Math.floor((this.width - extra) / this.cellSize);
-        const height = Math.floor((this.height - extra) / this.cellSize);
+        const width = Math.floor((this.width) / this.cellSize);
+        const height = Math.floor((this.height) / this.cellSize);
 
         this.game.width = width;
         this.game.height = height;
         this.game.init();
 
-        this.canvas.width = width * this.cellSize + extra;
-        this.canvas.height = height * this.cellSize + extra;
+        this.canvas.width = width * this.cellSize;
+        this.canvas.height = height * this.cellSize;
         this.context = this.canvas.getContext('2d');
         this.reset();
     }
@@ -173,6 +168,21 @@ class Canvas {
                 this.context.fillRect(value.x * this.cellSize + 1, value.y * this.cellSize + 1, this.cellSize, this.cellSize);
             }
         });
+    }
+
+    setCell({x, y}) {
+        const width = this.game.width;
+        const numX = Math.floor(x / this.cellSize);
+        const numY = Math.floor(y / this.cellSize);
+        const index = (width * numY) + numX;
+
+        const status = this.game.values[index];
+        const value = Number(!status);
+
+        this.context.fillStyle = value ? this.color : this.backgroundColor;
+        this.context.fillRect((index % width) * this.cellSize + 0.5, Math.floor(index / width) * this.cellSize + 0.5, this.cellSize, this.cellSize);
+
+        this.game.updateElement(index, value, 1);
     }
 }
 
@@ -255,7 +265,6 @@ const init = () => {
         runner.stop();
         game.reset();
     };
-
     document.querySelectorAll("[data-size-x]").forEach((button) => {
         const sizeX = parseFloat(button.getAttribute("data-size-x"));
         const sizeY = parseFloat(button.getAttribute("data-size-y"));
@@ -275,6 +284,16 @@ const init = () => {
             game.update();
         };
     });
+
+    const canvas = document.getElementById('canvas');
+    canvas.onclick = (e) => {
+        const mousePos = {
+            x: e.clientX - canvas.offsetLeft,
+            y: e.clientY - canvas.offsetTop
+        };
+
+        game.setCell(mousePos);
+    };
 };
 
 window.onload = init;
