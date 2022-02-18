@@ -103,6 +103,10 @@ class Canvas {
         this.game = game;
     }
 
+    shift(width) {
+        return width > 500? 40 : 20;
+    }
+
     reset() {
         this.game.reset();
         const canvasWidth = this.canvas.width;
@@ -276,7 +280,7 @@ const runRandomFunction = (runner, canvas) => {
 const init = () => {
     const game = new Canvas(new LifeGame());
     game.height = window.innerHeight;
-    game.width = window.innerWidth - 40;
+    game.width = window.innerWidth - game.shift(window.innerWidth);
     game.update();
     game.fill(randomFunction);
     const runner = new Runner(game);
@@ -307,7 +311,7 @@ const init = () => {
         button.onclick = () => {
             runner.stop();
             game.height = window.innerHeight * sizeY;
-            game.width = window.innerWidth * sizeX - 40;
+            game.width = window.innerWidth * sizeX - game.shift(window.innerWidth);
             game.update();
         };
     })

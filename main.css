@@ -5,7 +5,7 @@
 
 body {
   font-family: 'Subway Ticker', sans-serif;
-  margin: 20px;
+  margin: 10px;
   background-color: #222;
   color: #ccc;
 }
@@ -15,19 +15,19 @@ body {
 }
 
 .grid {
-  display: grid;
-  grid-template-columns: 150px 1fr;
+  display: block;
 }
 
 .btn {
   position: relative;
   display: block;
-  padding: 10px;
-  margin: 15px;
+  padding: 5px;
+  margin: 12px;
   text-transform: uppercase;
   cursor: pointer;
   color: black;
   background: #a600ff;
+  font-size: 12px;
 }
 
 .btn:active {
@@ -55,4 +55,21 @@ body {
   right: -6px;
   background: #a600ff;
   z-index: -1;
+}
+
+@media screen and (min-width: 600px) {
+  body {
+    margin: 20px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+  }
+
+  .btn {
+    padding: 10px;
+    font-size: 18px;
+    margin: 15px;
+  }
 }
